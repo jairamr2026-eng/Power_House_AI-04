@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import "@fontsource/plus-jakarta-sans/400.css";
+@import "@fontsource/plus-jakarta-sans/500.css";
+@import "@fontsource/plus-jakarta-sans/600.css";
+@import "@fontsource/plus-jakarta-sans/700.css";
+@import "@fontsource/plus-jakarta-sans/800.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
+@theme {
+  --color-primary: #123C2D;
+  --color-secondary: #10B981;
+  --color-tertiary: #0B1220;
+  --color-neutral: #64748B;
+  --color-surface-bg: #F4F7FB;
+  --color-surface-card: #FFFFFF;
+  --color-surface-soft: #E8EEFF;
+  --color-alert-red: #DC2626;
+  --color-alert-tint: #FEF2F2;
+  --color-amber: #F59E0B;
+
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  --color-primary: #123C2D;
+  --color-secondary: #10B981;
+  --color-tertiary: #0B1220;
+  --color-neutral: #64748B;
+  --color-surface-bg: #F4F7FB;
+  --color-surface-card: #FFFFFF;
+  --color-surface-soft: #E8EEFF;
+  --color-alert-red: #DC2626;
+  --color-alert-tint: #FEF2F2;
+  --color-amber: #F59E0B;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #F4F7FB;
+  color: #0B1220;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: #0B1220;
+}
+
+/* Custom Scrollbar for compact density */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Button style classes adhering strictly to the color system */
+.btn-primary {
+  background-color: #123C2D;
+  color: #FFFFFF;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+}
+.btn-primary:hover {
+  background-color: #1a4a39;
+}
+
+.btn-secondary {
+  background-color: #E8EEFF;
+  color: #123C2D;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: #dbe4fd;
+}
+
+.btn-inverted {
+  background-color: #0B1220;
+  color: #FFFFFF;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+}
+.btn-inverted:hover {
+  background-color: #162035;
+}
+
+.btn-outlined {
+  background-color: transparent;
+  color: #0B1220;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+}
+.btn-outlined:hover {
+  background-color: #F4F7FB;
+  border-color: #94a3b8;
+}
+
+/* Thin progress bar */
+.progress-bar-thin {
+  height: 6px;
+  border-radius: 9999px;
+  background-color: #E8EEFF;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background-color: #10B981;
+  transition: width 0.4s ease-out;
+}
