@@ -22,8 +22,8 @@ export default function Sidebar({ isOpen, onClose }) {
   const { points, tasks } = useApp();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 

@@ -375,8 +375,9 @@ export function getCurrentKolkataTimeInfo() {
 
   const isWeekend = kolkataDay === 'Saturday' || kolkataDay === 'Sunday';
   const currentTotalMinutes = hour * 60 + minute;
-  const startTotalMinutes = 9 * 60; // 9:00 AM
-  const endTotalMinutes = 18 * 60; // 6:00 PM
+  // Derive bounds from MOCK_WORK_SCHEDULE so the check always matches the displayed policy.
+  const startTotalMinutes = MOCK_WORK_SCHEDULE.startHour * 60 + MOCK_WORK_SCHEDULE.startMinute;
+  const endTotalMinutes = MOCK_WORK_SCHEDULE.endHour * 60 + MOCK_WORK_SCHEDULE.endMinute;
 
   const isWithinHours = !isWeekend && currentTotalMinutes >= startTotalMinutes && currentTotalMinutes < endTotalMinutes;
 
@@ -397,10 +398,7 @@ export function getCurrentKolkataTimeInfo() {
  */
 export async function login(email, password) {
   if (!USE_MOCK) {
-    return apiClient('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    throw new Error('Use Supabase Auth through the login form.');
   }
 
   await delay(350);
@@ -421,7 +419,7 @@ export async function login(email, password) {
  */
 export async function getMe() {
   if (!USE_MOCK) {
-    return apiClient('/api/me');
+    return apiClient('/me');
   }
 
   await delay(150);
@@ -434,7 +432,7 @@ export async function getMe() {
  */
 export async function getAccessStatus(simulateAfterHours = false) {
   if (!USE_MOCK) {
-    return apiClient('/api/me/access-status');
+    return apiClient('/users/me/access-status');
   }
 
   await delay(200);
@@ -481,7 +479,7 @@ export async function getAccessStatus(simulateAfterHours = false) {
  */
 export async function getWorkSchedule() {
   if (!USE_MOCK) {
-    return apiClient('/api/me/work-schedule');
+    return apiClient('/users/me/access-status');
   }
 
   await delay(150);
@@ -494,7 +492,7 @@ export async function getWorkSchedule() {
  */
 export async function requestException(payload) {
   if (!USE_MOCK) {
-    return apiClient('/api/employee/exception-requests', {
+    return apiClient('/employee/exception-requests', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -519,7 +517,7 @@ export async function requestException(payload) {
  */
 export async function getDashboardStats() {
   if (!USE_MOCK) {
-    return apiClient('/api/me/dashboard');
+    return apiClient('/me/dashboard');
   }
 
   await delay(200);
@@ -545,7 +543,7 @@ export async function getDashboardStats() {
  */
 export async function getMyTasks() {
   if (!USE_MOCK) {
-    return apiClient('/api/me/tasks');
+    return apiClient('/me/tasks');
   }
 
   await delay(200);
@@ -558,7 +556,7 @@ export async function getMyTasks() {
  */
 export async function getModels() {
   if (!USE_MOCK) {
-    return apiClient('/api/models');
+    return apiClient('/models');
   }
 
   await delay(150);
@@ -571,7 +569,7 @@ export async function getModels() {
  */
 export async function submitTask({ prompt, modelId = 'auto', urgency = 'Flexible', quality = 'Standard', deadline = 'Flexible' }) {
   if (!USE_MOCK) {
-    return apiClient('/api/tasks', {
+    return apiClient('/tasks', {
       method: 'POST',
       body: JSON.stringify({ prompt, modelId, urgency, quality, deadline }),
     });
@@ -678,7 +676,7 @@ export async function submitTask({ prompt, modelId = 'auto', urgency = 'Flexible
  */
 export async function acceptTask(id, payload = {}) {
   if (!USE_MOCK) {
-    return apiClient(`/api/tasks/${id}/accept`, {
+    return apiClient(`/tasks/${id}/accept`, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -720,7 +718,7 @@ export async function acceptTask(id, payload = {}) {
  */
 export async function getGreenPoints() {
   if (!USE_MOCK) {
-    return apiClient('/api/me/green-points');
+    return apiClient('/me/green-points');
   }
 
   await delay(200);
@@ -740,7 +738,7 @@ export async function getGreenPoints() {
  */
 export async function getGridStatus() {
   if (!USE_MOCK) {
-    return apiClient('/api/grid/status');
+    return apiClient('/grid/status');
   }
 
   await delay(200);

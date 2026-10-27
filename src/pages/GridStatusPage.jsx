@@ -20,10 +20,10 @@ import {
   Tooltip,
   ReferenceLine,
 } from 'recharts';
-import { getGridStatus, MOCK_GRID_STATUS } from '../api/mockApi';
+import { getGridStatus } from '../api/mockApi';
 
 export default function GridStatusPage() {
-  const [gridData, setGridData] = useState(MOCK_GRID_STATUS);
+  const [gridData, setGridData] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -65,7 +65,7 @@ export default function GridStatusPage() {
         {/* Region label */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-medium text-[#0B1220] shadow-xs">
           <Globe className="w-3.5 h-3.5 text-[#10B981]" />
-          <span>{gridData?.region || 'India - South Grid (Simulated)'}</span>
+          <span>{gridData?.current?.region || 'No data'}</span>
         </div>
       </div>
 
@@ -84,16 +84,16 @@ export default function GridStatusPage() {
           <div className="my-3">
             <div className="flex items-baseline gap-1.5">
               <span className="text-3xl sm:text-4xl font-bold text-[#123C2D] font-['Plus_Jakarta_Sans']">
-                {gridData?.currentIntensity || 640}
+                {gridData?.current?.carbon_intensity_g_per_kwh ?? '—'}
               </span>
-              <span className="text-sm font-semibold text-[#64748B]">{gridData?.unit || 'gCO₂/kWh'}</span>
+              <span className="text-sm font-semibold text-[#64748B]">gCO₂/kWh</span>
             </div>
             <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#10B981]/15 text-[#10B981] mt-1.5">
-              Cleaner in {gridData?.cleanerIn || '3h'}
+              {gridData?.current?.measurement_type || 'No verified record'}
             </span>
           </div>
           <p className="text-[11px] text-[#64748B] pt-2 border-t border-slate-100">
-            {gridData?.signalNote || 'Solar influx expected at 1:30 PM'}
+            {gridData?.current?.source || 'Ingest carbon-intensity data to enable this metric.'}
           </p>
         </div>
 
@@ -109,15 +109,15 @@ export default function GridStatusPage() {
           </div>
           <div className="my-3">
             <div className="text-xl sm:text-2xl font-bold text-[#123C2D] font-['Plus_Jakarta_Sans']">
-              {gridData?.nextCleanWindow?.time || '1:30 PM - 4:00 PM'}
+              Not available
             </div>
             <div className="text-xs font-bold text-[#10B981] flex items-center gap-1 mt-1.5">
               <TrendingDown className="w-3.5 h-3.5" />
-              <span>{gridData?.nextCleanWindow?.intensityDrop || 'Down to 370 gCO₂/kWh (-42%)'}</span>
+              <span>Forecasting requires an integrated data provider.</span>
             </div>
           </div>
           <p className="text-[11px] font-semibold text-[#123C2D] pt-2 border-t border-slate-100">
-            {gridData?.nextCleanWindow?.countdown || 'Starts in 3h 15m'}
+            No forecast record
           </p>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function GridStatusPage() {
         <div className="w-full h-56 pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
-              data={gridData?.hourlyTrend || []}
+              data={(gridData?.history || []).map((record) => ({ time: new Date(record.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), intensity: Number(record.carbon_intensity_g_per_kwh) }))}
               margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             >
               <defs>
@@ -201,9 +201,8 @@ export default function GridStatusPage() {
       <div className="p-3.5 rounded-xl bg-[#E8EEFF] border border-slate-200/80 flex items-start gap-2.5 text-xs text-[#0B1220]">
         <Info className="w-4 h-4 text-[#123C2D] shrink-0 mt-0.5" />
         <div className="text-[11px] leading-relaxed">
-          <strong>Simulated data: </strong>
-          {gridData?.disclaimer ||
-            'Figures are simulated. Source: Regional power dispatch model for hackathon demonstration.'}
+          <strong>Data provenance: </strong>
+          {gridData?.message || 'No carbon-intensity record is available.'}
         </div>
       </div>
     </div>

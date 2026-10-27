@@ -10,9 +10,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   getMyTasks,
+  getDashboardStats,
   calculateCarbonEquivalents,
   MOCK_7_DAY_SAVINGS,
 } from '../api/mockApi';
+import { USE_MOCK } from '../api/config';
 
 const AppContext = createContext(null);
 
@@ -140,7 +142,7 @@ export function AppProvider({ children }) {
         if (!isNaN(val)) return val;
       }
     } catch {}
-    return 320;
+    return 0;
   });
 
   // 2. Carbon Saved in shared state
@@ -152,7 +154,7 @@ export function AppProvider({ children }) {
         if (!isNaN(val)) return val;
       }
     } catch {}
-    return 482;
+    return 0;
   });
 
   // 3. 7-Day Savings Trend
@@ -164,7 +166,7 @@ export function AppProvider({ children }) {
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch {}
-    return MOCK_7_DAY_SAVINGS;
+    return USE_MOCK ? MOCK_7_DAY_SAVINGS : [];
   });
 
   // 4. Tasks list in shared state
@@ -175,9 +177,9 @@ export function AppProvider({ children }) {
   const [chats, setChats] = useState(() => {
     try {
       const stored = localStorage.getItem('carbonshield_saved_chats');
-      return stored ? JSON.parse(stored) : INITIAL_SAMPLE_CHATS;
+      return stored ? JSON.parse(stored) : (USE_MOCK ? INITIAL_SAMPLE_CHATS : []);
     } catch {
-      return INITIAL_SAMPLE_CHATS;
+    return USE_MOCK ? INITIAL_SAMPLE_CHATS : [];
     }
   });
 
@@ -235,6 +237,18 @@ export function AppProvider({ children }) {
     return () => {
       mounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    if (USE_MOCK) return;
+    let mounted = true;
+    void getDashboardStats().then((data) => {
+      if (!mounted) return;
+      setPoints(Number(data.points || 0));
+      setCarbonSaved(Number(data.estimated_emissions_g || 0));
+      setSevenDaySavings((data.emissions_by_day || []).map((row) => ({ day: row.day, saved: Number(row.emissions_g || 0) })));
+    }).catch(() => undefined);
+    return () => { mounted = false; };
   }, []);
 
   // Badge animation key to animate every points number, ring, bar

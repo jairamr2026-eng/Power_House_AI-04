@@ -29,30 +29,11 @@ export default function DashboardPage() {
 
   // Equivalents for Green Points card (1 phone charge = 8 gCO2e, 1 km driven = 120 gCO2e)
   // For default 482 gCO2e: 482 / 8 ≈ 60 phone charges, 482 / 120 ≈ 4 km
-  const phoneCharges = Math.round((carbonSaved || 482) / 8);
-  const kmDriven = Math.round((carbonSaved || 482) / 120);
+  const phoneCharges = Math.round(carbonSaved / 8);
+  const kmDriven = Math.round(carbonSaved / 120);
 
   // Take first 3 tasks for recent tasks list
-  const recentTasks = (tasks && tasks.length >= 3 ? tasks.slice(0, 3) : [
-    {
-      id: 'task-101',
-      name: 'Q3 Financial Summary Report Analysis',
-      status: 'Completed',
-      gCO2eSaved: 24,
-    },
-    {
-      id: 'task-102',
-      name: 'Customer Support Sentiment Classification (Batch 4k)',
-      status: 'Completed',
-      gCO2eSaved: 48,
-    },
-    {
-      id: 'task-103',
-      name: 'Weekly Codebase Vulnerability Scan',
-      status: 'Scheduled',
-      gCO2eSaved: 36,
-    },
-  ]);
+  const recentTasks = tasks || [];
 
   return (
     <div className="h-full max-w-5xl mx-auto p-5 md:p-6 flex flex-col justify-between text-[#0B1220] font-['Inter']">
@@ -63,7 +44,7 @@ export default function DashboardPage() {
               style={{ color: '#FFFFFF' }}
               className="text-xl md:text-2xl font-bold font-['Plus_Jakarta_Sans'] tracking-tight"
 >
-  Welcome back, Priya
+  Welcome back
 </h2>
           <p className="text-xs md:text-sm text-[#FFFFFF] mt-1 font-normal opacity-95">
             Next clean energy window starts in 3h 15m.
@@ -89,7 +70,7 @@ export default function DashboardPage() {
           </span>
           <div className="my-1">
             <span className="text-2xl sm:text-3xl font-bold font-['Plus_Jakarta_Sans'] text-[#0B1220] tracking-tight">
-              <CountUpNumber end={points || 320} duration={800} /> pts
+              <CountUpNumber end={points} duration={800} /> pts
             </span>
           </div>
           {/* Phone-charge and km icons showing "60" and "4" (strictly no rupees) */}
@@ -115,7 +96,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <span className="text-2xl sm:text-3xl font-bold font-['Plus_Jakarta_Sans'] text-[#0B1220] tracking-tight">
-              <CountUpNumber end={carbonSaved || 482} duration={850} /> gCO₂e
+              <CountUpNumber end={carbonSaved} duration={850} /> gCO₂e
             </span>
           </div>
           {/* Small 7-day bar chart, bars #10B981, no gridlines, tiny day labels */}
@@ -152,11 +133,11 @@ export default function DashboardPage() {
           </span>
           <div className="my-1">
             <span className="text-2xl sm:text-3xl font-bold font-['Plus_Jakarta_Sans'] text-[#0B1220] tracking-tight">
-              <CountUpNumber end={640} duration={850} /> gCO₂/kWh
+              Not available
             </span>
           </div>
           <span className="text-xs text-[#64748B]">
-            Cleaner in 3h
+            No verified carbon-intensity record
           </span>
         </div>
       </div>
@@ -177,14 +158,14 @@ export default function DashboardPage() {
         </div>
 
         <div className="divide-y divide-slate-100 flex-1 flex flex-col justify-around">
-          {recentTasks.map((task) => (
+          {recentTasks.length === 0 ? <p className="text-xs text-[#64748B] py-6 text-center">No recorded workloads yet.</p> : recentTasks.map((task) => (
             <div
               key={task.id}
               className="py-2 flex items-center justify-between text-xs"
             >
               <div className="min-w-0 pr-4">
                 <span className="font-medium text-[#0B1220] truncate block">
-                  {task.name}
+                  {task.job_name || task.name}
                 </span>
               </div>
               <div className="flex items-center gap-6 shrink-0">
@@ -192,7 +173,7 @@ export default function DashboardPage() {
                   {task.status}
                 </span>
                 <span className="font-medium text-[#0B1220] min-w-[70px] text-right font-mono">
-                  {task.gCO2eSaved} gCO₂e
+                  {task.estimated_emissions_g ?? 'Not available'} gCO₂e
                 </span>
               </div>
             </div>
@@ -203,7 +184,7 @@ export default function DashboardPage() {
       {/* 4. One tiny gray line */}
       <div className="pt-3 text-center">
         <p className="text-xs text-[#64748B]">
-          Figures are simulated.
+          Values reflect recorded data. Estimates are labeled by their source.
         </p>
       </div>
     </div>
