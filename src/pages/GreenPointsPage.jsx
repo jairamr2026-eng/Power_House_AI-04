@@ -7,7 +7,7 @@
 // - Perks: icon tiles (cafe 200 pts, gift card 500 pts, EV/metro 800 pts), small bar/ring, Redeem button, full names on hover
 // - History: small sparkline above vertical icon timeline (dot, points chip, date; titles on hover)
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Gift,
   Coffee,
@@ -31,7 +31,8 @@ import {
 } from 'recharts';
 import { useApp } from '../context/AppContext';
 import CountUpNumber from '../components/CountUpNumber';
-import { MOCK_PERKS, MOCK_POINTS_HISTORY, MOCK_SPARKLINE_DATA } from '../api/mockApi';
+import { getGreenPoints, MOCK_PERKS, MOCK_POINTS_HISTORY, MOCK_SPARKLINE_DATA } from '../api/mockApi';
+import { USE_MOCK } from '../api/config';
 
 const CustomBarTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -58,7 +59,8 @@ export default function GreenPointsPage() {
     badgeAnimateKey,
   } = useApp();
 
-  const [historyList, setHistoryList] = useState(MOCK_POINTS_HISTORY);
+  const [historyList, setHistoryList] = useState(USE_MOCK ? MOCK_POINTS_HISTORY : []);
+  const [perks, setPerks] = useState(USE_MOCK ? MOCK_PERKS : []);
   const [redeemedPerkId, setRedeemedPerkId] = useState(null);
 
   // Real-world equivalents based on saved carbon (no rupees)
@@ -66,10 +68,21 @@ export default function GreenPointsPage() {
   // 1 km driven = 120 gCO2e
   // 1 LED bulb hour = 6 gCO2e
   // 1 tree-day = 60 gCO2e (label "approx.")
-  const phoneCharges = Math.round((carbonSaved || 482) / 8);
-  const kmDriven = Math.round((carbonSaved || 482) / 120);
-  const ledHours = Math.round((carbonSaved || 482) / 6.4); // ~75 for 482
-  const treeDays = Math.round((carbonSaved || 482) / 60);
+  const phoneCharges = Math.round(carbonSaved / 8);
+  const kmDriven = Math.round(carbonSaved / 120);
+  const ledHours = Math.round(carbonSaved / 6.4);
+  const treeDays = Math.round(carbonSaved / 60);
+  const sparkline = useMemo(() => USE_MOCK ? MOCK_SPARKLINE_DATA : [...historyList].reverse().reduce((items, row) => {
+    const prior = items.at(-1)?.p || 0; items.push({ p: prior + Number(row.points || 0) }); return items;
+  }, []), [historyList]);
+
+  useEffect(() => {
+    if (USE_MOCK) return;
+    void getGreenPoints().then((data) => {
+      setHistoryList((data.history || []).map((row) => ({ id: row.id, title: row.reason, points: Number(row.points), date: new Date(row.created_at).toLocaleDateString() })));
+      setPerks([]);
+    }).catch(() => undefined);
+  }, []);
 
   const targetPoints = 500;
   const progressPercent = Math.min(100, Math.round((points / targetPoints) * 100));
@@ -139,7 +152,7 @@ export default function GreenPointsPage() {
             </svg>
             <div className="absolute flex flex-col items-center justify-center text-center">
               <span className="text-2xl font-bold font-['Plus_Jakarta_Sans'] text-[#0B1220] leading-none">
-                <CountUpNumber end={points || 320} duration={800} />
+                <CountUpNumber end={points} duration={800} />
               </span>
               <span className="text-[10px] text-[#64748B] mt-0.5">pts</span>
             </div>
@@ -178,7 +191,7 @@ export default function GreenPointsPage() {
             </span>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-bold font-['Plus_Jakarta_Sans'] text-[#0B1220]">
-                <CountUpNumber end={carbonSaved || 482} duration={850} />
+                <CountUpNumber end={carbonSaved} duration={850} />
               </span>
               <span className="text-xs text-[#64748B] font-semibold">gCO₂e</span>
             </div>
@@ -203,7 +216,7 @@ export default function GreenPointsPage() {
           </div>
 
           <div className="text-[11px] text-[#64748B] text-center">
-            {carbonSaved || 482} gCO₂e saved this week
+            {carbonSaved} gCO₂e recorded this week
           </div>
         </div>
 
@@ -218,7 +231,7 @@ export default function GreenPointsPage() {
               <Gift className="w-6 h-6 text-[#10B981]" />
             </div>
             <span className="text-lg font-bold text-[#0B1220] font-['Plus_Jakarta_Sans']">
-              <CountUpNumber end={points || 320} duration={800} /> / 500
+              <CountUpNumber end={points} duration={800} /> / 500
             </span>
           </div>
 
@@ -243,7 +256,7 @@ export default function GreenPointsPage() {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            {MOCK_PERKS.map((perk) => {
+            {perks.length === 0 ? <p className="col-span-3 text-center text-xs text-[#64748B] py-6">No reward catalog is configured.</p> : perks.map((perk) => {
               const canAfford = points >= perk.costPoints;
               const ratio = Math.min(100, Math.round((points / perk.costPoints) * 100));
 
@@ -312,7 +325,7 @@ export default function GreenPointsPage() {
               {/* Sparkline of points over time */}
               <div className="w-24 h-6">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={MOCK_SPARKLINE_DATA} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                  <AreaChart data={sparkline} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="ptsSpark" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#10B981" stopOpacity={0.4} />

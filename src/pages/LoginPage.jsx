@@ -108,11 +108,13 @@ export default function LoginPage() {
               <span>Sign In</span>
             )}
           </button>
-        </form>
+              </form>
 
-        <p className="text-[11px] text-center text-[#64748B] mt-4">
-          Demo: priya@powerhouse.com / demo123
-        </p>
+        {import.meta.env.VITE_USE_MOCK !== 'false' && (
+          <p className="text-[11px] text-center text-[#64748B] mt-4">
+            Demo: priya@powerhouse.com / demo123
+          </p>
+        )}
       </div>
     </div>
   );

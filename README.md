@@ -23,7 +23,7 @@ CarbonShield Companion is an AI assistant that empowers Powerhouse employees to 
    npm run build
    ```
 
-4. **Default demo credentials**:
+4. **Default demo credentials** (mock mode only):
    - Email: `priya@powerhouse.com`
    - Password: `demo123`
    - **Simulated after-hours shortcut**: Press `Ctrl+Shift+H` on the login page to toggle after-hours policy simulation and test the "Your Workday Has Ended" and "Request Access" modals.
@@ -36,11 +36,15 @@ Create a `.env` file in the project root (copied from `.env.example`):
 
 ```ini
 # When true, all requests use client-side mock data with real simulated timings.
-# Set to false to connect to the live backend server.
+# Set to false to use Supabase Auth at the login page and the live backend.
 VITE_USE_MOCK=true
 
-# Base URL of the backend API (FastAPI, Express, Supabase, etc.)
-VITE_API_BASE_URL=http://localhost:8000
+# Base URL of the CarbonShield FastAPI API.
+VITE_API_BASE_URL=http://localhost:8000/api
+
+# Required when VITE_USE_MOCK=false. Use a publishable key only; never use service_role.
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
 ```
 
 > **CORS Notice:** The FastAPI backend server must allow Cross-Origin Resource Sharing (CORS) for `http://localhost:5173`:
@@ -55,6 +59,16 @@ VITE_API_BASE_URL=http://localhost:8000
 >     allow_headers=["*"],
 > )
 > ```
+
+---
+
+## Supabase login
+
+Set `VITE_USE_MOCK=false` and provide the three `VITE_SUPABASE_*` values above. The login form then calls Supabase `signInWithPassword`; passwords never pass through CarbonShield's API or local storage. Supabase manages the refreshable browser session, while the access token is used only for authenticated API requests and is removed on sign-out.
+
+After successful login, the app attempts to start a server-recorded employee session for the user's first active CarbonShield organization. Logout attempts to close it. A user without an organization can still authenticate successfully.
+
+In Supabase Auth, create the user (or enable your preferred sign-up flow) and add `http://localhost:5173` plus the production URL to the allowed redirect URLs. Never place a Supabase `service_role` key in a `VITE_` variable.
 
 ---
 
