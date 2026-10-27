@@ -1,9 +1,9 @@
 // src/context/AuthContext.jsx
-// Handles employee mock authentication and work-schedule validation.
+// Handles employee mock authentication.
 // Stores only a fake token in localStorage, NEVER passwords.
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { login as apiLogin, getAccessStatus } from '../api/mockApi';
+import { login as apiLogin } from '../api/mockApi';
 
 const AuthContext = createContext(null);
 const TOKEN_KEY = 'carbonshield_token';
@@ -32,34 +32,12 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  /**
-   * login:
-   * 1. Calls login(email, password) -> returns token and sanitized user (no password).
-   * 2. Checks access status with getAccessStatus(simulateAfterHours).
-   * 3. If outside working hours, returns { outsideHours: true, accessInfo } without authenticating.
-   */
-  const login = async (email, password, simulateAfterHours = false) => {
+  const login = async (email, password) => {
     setLoading(true);
     setError('');
 
     try {
-      // 1. Verify credentials via mockApi
       const res = await apiLogin(email, password);
-
-      // 2. Validate official working hours
-      const accessStatus = await getAccessStatus(simulateAfterHours);
-
-      if (!accessStatus.allowed) {
-        setLoading(false);
-        // Clear token so user remains unauthenticated
-        localStorage.removeItem(TOKEN_KEY);
-        return {
-          outsideHours: true,
-          accessInfo: accessStatus,
-        };
-      }
-
-      // 3. Set authenticated user
       setUser(res.user);
       setLoading(false);
       return { success: true, user: res.user };
